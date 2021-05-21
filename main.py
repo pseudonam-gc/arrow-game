@@ -8,7 +8,7 @@ import random
 import copy
 import math
 
-players = []
+players = {}
 
 class MyClient(discord.Client):
 
@@ -28,18 +28,21 @@ class MyClient(discord.Client):
 
 		if message.content[0] != ".":
 			return
-		if message.content == ".start":
+
+		inp = message.content.split()
+
+		if inp[0] == ".start":
 			p = Player(message.author)
-			players.append(p)
+			players[message.author]=p
 			await message.channel.send("Initialized account " + str(message.author) + ". Type \".adv\" to begin!")
 			return
-		elif message.author not in [x.dID for x in players]:
+		elif not (message.author in players):
 			await message.channel.send("Please initialize your account with .start.")
 			return 
 
-		if message.content == ".adv":
+		if inp[0] == ".adv" or inp[0] == ".a":
 			n = Game(message.channel, message.author)
-			await n.release(1) #player level
+			await n.release(players[message.author].world, players[message.author].level) #player level
 			return
 
 

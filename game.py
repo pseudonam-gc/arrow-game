@@ -42,8 +42,16 @@ class Game():
         #self.timer = 90
         pass
 
-    async def release(self, level):
-        im = Image.new("RGB", (1000, 1000), (128, 128, 128))
+    async def release(self, world, level):
+
+        if world == 1:
+            if level == 1:
+                l = random.randint(7, 13)
+                w = random.randint(7, 13)
+                arrow_count = 3
+                star_count = 5
+
+        im = Image.new("RGB", (300+100*l, 300+100*w), (128, 128, 128))
         draw = ImageDraw.Draw(im)
 
         # Background
@@ -51,20 +59,17 @@ class Game():
         draw.rectangle((0, 0, im.width, im.height), fill=(255, 255, 255))
         font = ImageFont.truetype('/Library/Fonts/Arial Bold.ttf', 72)
         # Horizontal Lines
-        for i in range(8):
-            draw.line((150, 150+i*100, 850, 150+i*100), fill=(0, 0, 0), width=8)
-        for i in range(8):
-            draw.line((150+i*100, 150, 150+i*100, 850), fill=(0, 0, 0), width=8)
+        for i in range(w+1):
+            draw.line((150, 150+i*100, 150+l*100, 150+i*100), fill=(0, 0, 0), width=8)
+        for i in range(l+1):
+            draw.line((150+i*100, 150, 150+i*100, 150+w*100), fill=(0, 0, 0), width=8)
 
         a = Grid()
+        a.generateGrid(l, w, arrow_count, star_count)
 
-        if level == 1:
-            a.generateGrid(3, 5)
-
-        a.printGrid()
         a.generateTempGrid()
-        for i in range(7):
-            for j in range(7):
+        for i in range(l):
+            for j in range(w):
                 v = a.tempgrid[j][i]
                 if v == "00":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 255))
@@ -78,7 +83,7 @@ class Game():
                 elif v[0] == "*":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
                     paint_color = (255, 255, 255)
-        a.printGrid()
+
         #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('test.png', quality=95)
@@ -86,8 +91,8 @@ class Game():
 
 
 
-        for i in range(7):
-            for j in range(7):
+        for i in range(l):
+            for j in range(w):
                 v = a.grid[j][i].value
                 if v == "00":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 255))
@@ -101,7 +106,7 @@ class Game():
                 elif v[0] == "*":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
                     paint_color = (255, 255, 255)
-        a.printGrid()
+
         #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('SPOILER_test.png', quality=95)

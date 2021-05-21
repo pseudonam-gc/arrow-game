@@ -25,19 +25,19 @@ class Grid():
             print (" ".join([y.value for y in [x for x in i]]))
         print ("")
 
-    def generateGrid(self, arrow_count, star_count): # g is the grid being filled
+    def generateGrid(self, l, w, arrow_count, star_count): # g is the grid being filled
         self.grid = []
-        for i in range(7):
+        for i in range(w):
             self.grid.append([])
-            for j in range(7):
+            for j in range(l):
                 self.grid[i].append(Space(j, i, "00"))
         space_list = [] # List of Space objects in the grid
         for i in self.grid:
             for j in i:
                 space_list.append(j)
         # Assign the player's position
-        py = random.randint(0,6)
-        px = random.randint(0,6)
+        py = random.randint(0,w-1)
+        px = random.randint(0,l-1)
         self.grid[py][px].value = "PP"
 
         prev_x = px
@@ -137,7 +137,7 @@ class Grid():
                 star_spaces[s].value = "**"
                 star_spaces.pop(s)
         else:
-            self.generateGrid(arrow_count, star_count)
+            self.generateGrid(l, w, arrow_count, star_count)
         
     def generateTempGrid(self):
         arrow_spaces = []
