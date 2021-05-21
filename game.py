@@ -1,0 +1,108 @@
+import discord
+from PIL import Image, ImageDraw, ImageFont
+from grid import Space
+from grid import Grid
+from player import Player
+import random
+import copy
+import math
+
+# TODO: Parse out image inputs
+
+def drawPlayer(draw, x, y, dir):
+	draw.ellipse((x-40, y-40, x+40, y+40), fill=(0, 255, 0))
+	drawArrow(draw, x, y, dir, size=0.7)
+		
+def drawArrow(draw, x, y, dir, size=1): # x and y are centered spaces
+	if dir == "U":
+		draw.line((x, y+30*size, x, y-30*size), fill=(0, 0, 0), width=5)
+		draw.line((x-15*size, y-10*size, x, y-30*size), fill=(0, 0, 0), width=4)
+		draw.line((x+15*size, y-10*size, x, y-30*size), fill=(0, 0, 0), width=4)
+	elif dir == "D":
+		draw.line((x, y-30*size, x, y+30*size), fill=(0, 0, 0), width=5)
+		draw.line((x-15*size, y+10*size, x, y+30*size), fill=(0, 0, 0), width=4)
+		draw.line((x+15*size, y+10*size, x, y+30*size), fill=(0, 0, 0), width=4)
+	elif dir == "R":
+		draw.line((x-30*size, y, x+30*size, y), fill=(0, 0, 0), width=5)
+		draw.line((x+10*size, y-15*size, x+30*size, y), fill=(0, 0, 0), width=4)
+		draw.line((x+10*size, y+15*size, x+30*size, y), fill=(0, 0, 0), width=4)
+	elif dir == "L":
+		draw.line((x+30*size, y, x-30*size, y), fill=(0, 0, 0), width=5)
+		draw.line((x-10*size, y-15*size, x-30*size, y), fill=(0, 0, 0), width=4)
+		draw.line((x-10*size, y+15*size, x-30*size, y), fill=(0, 0, 0), width=4)
+
+class Game():
+    def __init__(self, channel, dID):
+        # create grid
+        self.grid = Grid()
+        self.channel = channel
+        #self.timer = -1
+        self.dID = dID
+    async def begin(self):
+        #self.timer = 90
+        pass
+
+    async def release(self, level):
+        im = Image.new("RGB", (1000, 1000), (128, 128, 128))
+        draw = ImageDraw.Draw(im)
+
+        # Background
+
+        draw.rectangle((0, 0, im.width, im.height), fill=(255, 255, 255))
+        font = ImageFont.truetype('/Library/Fonts/Arial Bold.ttf', 72)
+        # Horizontal Lines
+        for i in range(8):
+            draw.line((150, 150+i*100, 850, 150+i*100), fill=(0, 0, 0), width=8)
+        for i in range(8):
+            draw.line((150+i*100, 150, 150+i*100, 850), fill=(0, 0, 0), width=8)
+
+        a = Grid()
+
+        if level == 1:
+            a.generateGrid(3, 5)
+
+        a.printGrid()
+        a.generateTempGrid()
+        for i in range(7):
+            for j in range(7):
+                v = a.tempgrid[j][i]
+                if v == "00":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 255))
+                elif v[0] == "P":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    drawPlayer(draw, 200+i*100, 200+j*100, v[1])
+                elif v[0] == "A":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    drawArrow(draw, 200+i*100, 200+j*100, v[1])
+                    paint_color = (200, 200, 200)
+                elif v[0] == "*":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
+                    paint_color = (255, 255, 255)
+        a.printGrid()
+        #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
+        #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
+        im.save('test.png', quality=95)
+        await self.channel.send(file=discord.File("test.png"))
+
+
+
+        for i in range(7):
+            for j in range(7):
+                v = a.grid[j][i].value
+                if v == "00":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 255))
+                elif v[0] == "P":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    drawPlayer(draw, 200+i*100, 200+j*100, v[1])
+                elif v[0] == "A":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    drawArrow(draw, 200+i*100, 200+j*100, v[1])
+                    paint_color = (200, 200, 200)
+                elif v[0] == "*":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
+                    paint_color = (255, 255, 255)
+        a.printGrid()
+        #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
+        #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
+        im.save('SPOILER_test.png', quality=95)
+        await self.channel.send(file=discord.File("SPOILER_test.png"))
