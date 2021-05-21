@@ -127,7 +127,7 @@ class Grid():
             self.grid[prev_y][prev_x].value = "AD"
         else:
             self.grid[prev_y][prev_x].value = "AU"
-            
+        self.open_squares = space_list
 
         # TODO: ENSURE LEN(STAR_SPACES) >= 5 OR RESTART THE WHOLE PROCESS
         # TODO: SPAWN GOLD ON DIFFERENT ROWS/COLUMNS IF POSSIBLE
@@ -139,7 +139,7 @@ class Grid():
         else:
             self.generateGrid(l, w, arrow_count, star_count)
         
-    def generateTempGrid(self):
+    def generateTempGrid(self, removed_arrows, unnec_arrows):
         arrow_spaces = []
         self.tempgrid = []
         for i in range(len(self.grid)):
@@ -148,9 +148,9 @@ class Grid():
                 self.tempgrid[i].append(self.grid[i][j].value)
                 if self.tempgrid[i][j][0] == "A":
                     arrow_spaces.append((i, j))
-        # TODO: ENSURE LEN(STAR_SPACES) >= 3 OR RESTART THE WHOLE PROCESS        
+        # TODO: ENSURE LEN() >= REMOVED_ARROWS OR RESTART THE WHOLE PROCESS        
 
-        for i in range(3):
+        for i in range(removed_arrows):
             s = random.randint(0, len(arrow_spaces)-1)
             sy = arrow_spaces[s][0]
             sx = arrow_spaces[s][1]
@@ -158,6 +158,12 @@ class Grid():
             arrow_spaces.pop(s)
 
         # TODO: DECOY ARROWS?
+        for i in range(unnec_arrows):
+            s = random.randint(0, len(self.open_squares)-1)
+            d = ["R", "U", "D", "L"]
+            sx = self.open_squares[s].x
+            sy = self.open_squares[s].y
+            self.tempgrid[sy][sx] = "A"+d[random.randint(0, 3)]
 
 
             

@@ -43,13 +43,32 @@ class Game():
         pass
 
     async def release(self, world, level):
-
+        l = 8
+        w = 8
+        arrow_count = 0
+        star_count = 7
+        unnec_arrows = 0
+        removed_arrows = 0  
         if world == 1:
             if level == 1:
-                l = random.randint(7, 13)
-                w = random.randint(7, 13)
-                arrow_count = 3
+                l = 5
+                w = 5
+                arrow_count = 2
                 star_count = 5
+                removed_arrows = 2
+            if level == 2:
+                l = 6
+                w = 6
+                arrow_count = 4
+                star_count = 5
+                removed_arrows = 2
+            if level == 3:
+                l = 7
+                w = 7
+                arrow_count = 6
+                star_count = 5
+                unnec_arrows = 1
+                removed_arrows = 1
 
         im = Image.new("RGB", (300+100*l, 300+100*w), (128, 128, 128))
         draw = ImageDraw.Draw(im)
@@ -67,7 +86,7 @@ class Game():
         a = Grid()
         a.generateGrid(l, w, arrow_count, star_count)
 
-        a.generateTempGrid()
+        a.generateTempGrid(removed_arrows, unnec_arrows)
         for i in range(l):
             for j in range(w):
                 v = a.tempgrid[j][i]
