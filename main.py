@@ -42,11 +42,15 @@ class MyClient(discord.Client):
 
 		if inp[0] == ".adv" or inp[0] == ".a":
 			n = Game(message.channel, message.author)
+			players[message.author].game = n
 			await n.release(players[message.author].world, players[message.author].level) #player level
 			return
 
 		if inp[0] == ".submit" or inp[0] == ".s":
 			pass
+
+		if inp[0] == ".check" or inp[0] == ".c":
+			await players[message.author].game.check()
 
 		if inp[0] == ".l":
 			players[message.author].level = int(inp[1])

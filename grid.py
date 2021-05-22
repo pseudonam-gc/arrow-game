@@ -31,6 +31,8 @@ class Grid():
         print ("")
 
     def generateGrid(self, l, w, arrow_count, star_count, unnec_arrows): # g is the grid being filled
+        self.l = l 
+        self.w = w
         self.grid = []
         for i in range(w):
             self.grid.append([])

@@ -38,7 +38,7 @@ class Game():
         self.channel = channel
         #self.timer = -1
         self.dID = dID
-        self.submission = {} # key-value pairs are ID-(Value, Space). 
+        self.submission = {} # key-value pairs are ID-Space. 
     async def begin(self):
         #self.timer = 90
         pass
@@ -83,6 +83,18 @@ class Game():
                 star_count = 5
                 removed_arrows = 5
 
+        self.grid = Grid()
+        self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+
+        self.grid.generateTempGrid(removed_arrows)
+
+        await self.check()
+
+    async def check(self):
+
+        l = self.grid.l 
+        w = self.grid.w
+        
         im = Image.new("RGB", (300+(200)+100*l, 300+100*w), (128, 128, 128))
         draw = ImageDraw.Draw(im)
 
@@ -107,12 +119,6 @@ class Game():
             draw.text((100, 200+i*100), str(i+1), font=font, fill=(0,0,0), anchor="mm")
         for i in range(w):
             draw.text((200+w*100, 200+i*100), str(i+1), font=font, fill=(0,0,0), anchor="mm")
-
-        self.grid = Grid()
-        self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
-
-        self.grid.generateTempGrid(removed_arrows)
-
         # Draw tempGrid
 
         for i in range(l):
@@ -131,7 +137,9 @@ class Game():
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
                     paint_color = (255, 255, 255)
 
-        print (self.grid.inventory)
+        # Set everything in submission to -1.
+        for i in range(len(self.grid.inventory)):
+            self.submission[i] = -1
 
         # Draw inventory lines
         for i in range(len(self.grid.inventory)+1):
@@ -142,7 +150,10 @@ class Game():
         # Draw inventory
 
         for i in range(len(self.grid.inventory)):
-            draw.rectangle((254+l*100, 154+i*100, 346+l*100, 246+i*100), fill=(255, 255, 255))
+            if self.submission[i] == -1:
+                draw.rectangle((254+l*100, 154+i*100, 346+l*100, 246+i*100), fill=(255, 255, 255))
+            else:
+                draw.rectangle((254+l*100, 154+i*100, 346+l*100, 246+i*100), fill=(0, 255, 0))
             if self.grid.inventory[i][0] == "a":
                 drawArrow(draw, 300+l*100, 200+i*100, self.grid.inventory[i][1])
 
@@ -151,8 +162,6 @@ class Game():
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('test.png', quality=95)
         await self.channel.send(file=discord.File("test.png"))
-
-
 
         for i in range(l):
             for j in range(w):
@@ -183,8 +192,10 @@ class Game():
         if len(space) == 2 and not space[0].isnumeric() and space[1].isnumeric():
             xind = ord(space[0])-64
             yind = int(space[1])
-            space_value = self.grid.inventory[piece_id-1]
-            self.grid.tempgrid[yind][xind] = space_value[0].lower()+space_value[1]
+            if self.grid.tempgrid[yind][xind] == "00":
+                space_value = self.grid.inventory[piece_id-1]
+                self.grid.tempgrid[yind][xind] = space_value[0].lower()+space_value[1]
+            # TODO: Inform players of fail
+        self.submission[piece_id] = (xind, yind)
 
-        self.submission[piece_id] = (self.grid.inventory[piece_id-1], )
 
