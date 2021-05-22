@@ -39,6 +39,7 @@ class Game():
         #self.timer = -1
         self.dID = dID
         self.submission = {} # key-value pairs are ID-Space. 
+        # Set everything in submission to -1.
     async def begin(self):
         #self.timer = 90
         pass
@@ -87,14 +88,15 @@ class Game():
         self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
 
         self.grid.generateTempGrid(removed_arrows)
-
+        for i in range(len(self.grid.inventory)):
+            self.submission[i] = -1
         await self.check()
 
     async def check(self):
 
         l = self.grid.l 
         w = self.grid.w
-        
+
         im = Image.new("RGB", (300+(200)+100*l, 300+100*w), (128, 128, 128))
         draw = ImageDraw.Draw(im)
 
@@ -132,14 +134,11 @@ class Game():
                 elif v[0] == "A":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
                     drawArrow(draw, 200+i*100, 200+j*100, v[1])
-                    paint_color = (200, 200, 200)
+                elif v[0] == "a":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(0, 255, 0))
+                    drawArrow(draw, 200+i*100, 200+j*100, v[1])
                 elif v[0] == "*":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
-                    paint_color = (255, 255, 255)
-
-        # Set everything in submission to -1.
-        for i in range(len(self.grid.inventory)):
-            self.submission[i] = -1
 
         # Draw inventory lines
         for i in range(len(self.grid.inventory)+1):
@@ -150,6 +149,7 @@ class Game():
         # Draw inventory
 
         for i in range(len(self.grid.inventory)):
+            print (self.submission)
             if self.submission[i] == -1:
                 draw.rectangle((254+l*100, 154+i*100, 346+l*100, 246+i*100), fill=(255, 255, 255))
             else:
@@ -183,19 +183,27 @@ class Game():
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('SPOILER_test.png', quality=95)
         await self.channel.send(file=discord.File("SPOILER_test.png"))
-    async def submit(piece_id, space):
 
+    async def place(self, piece_id, space):
         # TODO: Ensure id is an integer
 
-        if piece_id > self.grid.inventory or piece_id < 0:
+        if piece_id > len(self.grid.inventory) or piece_id < 0:
             return
         if len(space) == 2 and not space[0].isnumeric() and space[1].isnumeric():
-            xind = ord(space[0])-64
-            yind = int(space[1])
+            xind = ord(space[0].upper())-64-1
+            yind = int(space[1])-1
+            # self.submission is 0-indexed
+            if self.submission[piece_id-1] != -1:
+                n = self.submission[piece_id-1]
+                self.grid.tempgrid[n[1]][n[0]] = "00"
             if self.grid.tempgrid[yind][xind] == "00":
                 space_value = self.grid.inventory[piece_id-1]
-                self.grid.tempgrid[yind][xind] = space_value[0].lower()+space_value[1]
+                self.grid.tempgrid[yind][xind] = space_value
+                self.submission[piece_id-1] = (xind, yind)
+            elif self.grid.tempgrid[yind][xind].islower():
+                # TODO: Case for this
+                pass
+
             # TODO: Inform players of fail
-        self.submission[piece_id] = (xind, yind)
 
 

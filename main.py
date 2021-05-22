@@ -46,14 +46,18 @@ class MyClient(discord.Client):
 			await n.release(players[message.author].world, players[message.author].level) #player level
 			return
 
-		if inp[0] == ".submit" or inp[0] == ".s":
-			pass
+		if inp[0] == ".place" or inp[0] == ".p":
+			await players[message.author].game.place(int(inp[1]), inp[2])
+			return
 
 		if inp[0] == ".check" or inp[0] == ".c":
 			await players[message.author].game.check()
+			return 
 
 		if inp[0] == ".l":
 			players[message.author].level = int(inp[1])
+			await message.channel.send("Level set to " + str(inp[1]))
+			return 
 
 
 
