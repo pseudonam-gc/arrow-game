@@ -50,6 +50,10 @@ class MyClient(discord.Client):
 			await players[message.author].game.place(int(inp[1]), inp[2])
 			return
 
+		if inp[0] == ".remove" or inp[0] == ".r":
+			await players[message.author].game.remove(int(inp[1]))
+			return
+
 		if inp[0] == ".check" or inp[0] == ".c":
 			await players[message.author].game.check()
 			return 

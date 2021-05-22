@@ -149,7 +149,6 @@ class Game():
         # Draw inventory
 
         for i in range(len(self.grid.inventory)):
-            print (self.submission)
             if self.submission[i] == -1:
                 draw.rectangle((254+l*100, 154+i*100, 346+l*100, 246+i*100), fill=(255, 255, 255))
             else:
@@ -205,5 +204,11 @@ class Game():
                 pass
 
             # TODO: Inform players of fail
-
+    
+    async def remove(self, piece_id):
+        if self.submission[piece_id-1] != -1:
+            n = self.submission[piece_id-1]
+            self.grid.tempgrid[n[1]][n[0]] = "00"
+            self.submission[piece_id-1] = -1
+        # TODO: inform players of fail
 
