@@ -45,6 +45,9 @@ class MyClient(discord.Client):
 			await n.release(players[message.author].world, players[message.author].level) #player level
 			return
 
+		if inp[0] == ".submit" or inp[0] == ".s":
+			pass
+
 		if inp[0] == ".l":
 			players[message.author].level = int(inp[1])
 

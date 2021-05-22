@@ -38,6 +38,7 @@ class Game():
         self.channel = channel
         #self.timer = -1
         self.dID = dID
+        self.submission = {} # key-value pairs are ID-(Value, Space). 
     async def begin(self):
         #self.timer = 90
         pass
@@ -65,12 +66,24 @@ class Game():
             if level == 3:
                 l = 7
                 w = 7
-                arrow_count = 6
+                arrow_count = 5
                 star_count = 5
                 unnec_arrows = 1
                 removed_arrows = 1
+            if level == 4:
+                l = 7
+                w = 7
+                arrow_count = 6
+                star_count = 5
+                removed_arrows = 3
+            if level == 5:
+                l = 7
+                w = 7
+                arrow_count = 5
+                star_count = 5
+                removed_arrows = 5
 
-        im = Image.new("RGB", (300+100*l, 300+100*w), (128, 128, 128))
+        im = Image.new("RGB", (300+(200)+100*l, 300+100*w), (128, 128, 128))
         draw = ImageDraw.Draw(im)
 
         # Background
@@ -83,13 +96,28 @@ class Game():
         for i in range(l+1):
             draw.line((150+i*100, 150, 150+i*100, 150+w*100), fill=(0, 0, 0), width=8)
 
-        a = Grid()
-        a.generateGrid(l, w, arrow_count, star_count)
+        # Horizontal Letters
+        for i in range(w):
+            draw.text((200+i*100, 100), chr(65+i), font=font, fill=(0,0,0), anchor="mm")
+        for i in range(w):
+            draw.text((200+i*100, 200+w*100), chr(65+i), font=font, fill=(0,0,0), anchor="mm")
 
-        a.generateTempGrid(removed_arrows, unnec_arrows)
+        # Vertical Numbers
+        for i in range(w):
+            draw.text((100, 200+i*100), str(i+1), font=font, fill=(0,0,0), anchor="mm")
+        for i in range(w):
+            draw.text((200+w*100, 200+i*100), str(i+1), font=font, fill=(0,0,0), anchor="mm")
+
+        self.grid = Grid()
+        self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+
+        self.grid.generateTempGrid(removed_arrows)
+
+        # Draw tempGrid
+
         for i in range(l):
             for j in range(w):
-                v = a.tempgrid[j][i]
+                v = self.grid.tempgrid[j][i]
                 if v == "00":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 255))
                 elif v[0] == "P":
@@ -103,6 +131,22 @@ class Game():
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
                     paint_color = (255, 255, 255)
 
+        print (self.grid.inventory)
+
+        # Draw inventory lines
+        for i in range(len(self.grid.inventory)+1):
+            draw.line((250+l*100, 150+i*100, 350+l*100, 150+i*100), fill=(0, 0, 0), width=8)
+        draw.line((350+l*100, 150, 350+l*100, 150+len(self.grid.inventory)*100), fill=(0, 0, 0), width=8)
+        draw.line((250+l*100, 150, 250+l*100, 150+len(self.grid.inventory)*100), fill=(0, 0, 0), width=8)
+
+        # Draw inventory
+
+        for i in range(len(self.grid.inventory)):
+            draw.rectangle((254+l*100, 154+i*100, 346+l*100, 246+i*100), fill=(255, 255, 255))
+            if self.grid.inventory[i][0] == "a":
+                drawArrow(draw, 300+l*100, 200+i*100, self.grid.inventory[i][1])
+
+
         #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('test.png', quality=95)
@@ -112,7 +156,7 @@ class Game():
 
         for i in range(l):
             for j in range(w):
-                v = a.grid[j][i].value
+                v = self.grid.grid[j][i].value
                 if v == "00":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 255))
                 elif v[0] == "P":
@@ -130,3 +174,17 @@ class Game():
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('SPOILER_test.png', quality=95)
         await self.channel.send(file=discord.File("SPOILER_test.png"))
+    async def submit(piece_id, space):
+
+        # TODO: Ensure id is an integer
+
+        if piece_id > self.grid.inventory or piece_id < 0:
+            return
+        if len(space) == 2 and not space[0].isnumeric() and space[1].isnumeric():
+            xind = ord(space[0])-64
+            yind = int(space[1])
+            space_value = self.grid.inventory[piece_id-1]
+            self.grid.tempgrid[yind][xind] = space_value[0].lower()+space_value[1]
+
+        self.submission[piece_id] = (self.grid.inventory[piece_id-1], )
+
