@@ -138,30 +138,67 @@ class Grid():
                 else:
                     self.grid[prev_y][prev_x].value = "PU"
 
-
             # Sets previous space to current space
 
             prev_x = space.x 
             prev_y = space.y
             t += 1 
-        # TODO: Hide part of the grid.
 
         # Fix final space
+        candidate_spaces = []
+        if self.perp != 1:
+            for i in space_list:
+                if xor(i.x == prev_x, i.y == prev_y):
+                    candidate_spaces.append(i)
+        else:
+            if prev_movement == -1:
+                for i in space_list:
+                    if xor(i.x == prev_x, i.y == prev_y):
+                        candidate_spaces.append(i)
+            elif prev_movement == 0:
+                for i in space_list:
+                    if i.y == prev_y:
+                        candidate_spaces.append(i)
+            elif prev_movement == 1:
+                for i in space_list:
+                    if i.x == prev_x:
+                        candidate_spaces.append(i)
+        if len(candidate_spaces) == 0:
+            self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+            return
+        seed = random.randint(0, len(candidate_spaces)-1)
+        space = candidate_spaces[seed]
 
         if prev_x < space.x:
             self.grid[prev_y][prev_x].value = "AR"
+            # append everything to the right of this
+            for i in space_list:
+                if i.x > space.x and i.y == space.y:
+                    star_spaces.append(i)
         elif prev_x > space.x:
             self.grid[prev_y][prev_x].value = "AL"
+            for i in space_list:
+                if i.x < space.x and i.y == space.y:
+                    star_spaces.append(i)
         elif prev_y < space.y:
             self.grid[prev_y][prev_x].value = "AD"
+            for i in space_list:
+                if i.y > space.y and i.x == space.x:
+                    star_spaces.append(i)
         else:
             self.grid[prev_y][prev_x].value = "AU"
+            for i in space_list:
+                if i.y < space.y and i.x == space.x:
+                    star_spaces.append(i)
         self.open_squares = space_list
+
+        # Clear duplicates
+        star_spaces = list(set(star_spaces))
 
         # TODO: ENSURE LEN(STAR_SPACES) >= 5 OR RESTART THE WHOLE PROCESS
         # TODO: FAKE STARS
         if len(star_spaces) >= 5:
-            for i in range(star_count):
+            for i in range(5):
                 min_star_count = star_spaces[0].star_value
                 for j in range(len(star_spaces)):
                     if star_spaces[j].star_value < min_star_count:
@@ -186,6 +223,20 @@ class Grid():
                     if star_spaces[j] == min_star_spaces[s]:
                         star_spaces[j].add_star_value(100000)
                     # Every adjacent star space gets +1
+            decoy_star_spaces = []
+            for i in range(len(space_list)):
+                    # Find empty space not in 
+                    if space_list[j] not in star_spaces and space_list[j].value == "00":
+                        decoy_star_spaces.append(space_list[j])
+            if len(decoy_star_spaces) >= star_count-5:           
+                for i in range(star_count-5):
+                    ind = random.randint(0, len(decoy_star_spaces)-1)
+                    decoy_star_spaces[ind].value = "**"
+                    decoy_star_spaces.pop(ind)
+
+
+            else:
+                self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)    
         else:
             self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
         

@@ -41,7 +41,7 @@ class MyClient(discord.Client):
 			return 
 
 		if inp[0] == ".adv" or inp[0] == ".a":
-			n = Game(message.channel, message.author)
+			n = Game(message.channel, players[message.author], message.author)
 			players[message.author].game = n
 			await n.release(players[message.author].world, players[message.author].level) #player level
 			return

@@ -32,10 +32,11 @@ def drawArrow(draw, x, y, dir, size=1): # x and y are centered spaces
 		draw.line((x-10*size, y+15*size, x-30*size, y), fill=(0, 0, 0), width=4)
 
 class Game():
-    def __init__(self, channel, dID):
+    def __init__(self, channel, player, dID):
         # create grid
         self.grid = Grid()
         self.channel = channel
+        self.player = player
         #self.timer = -1
         self.dID = dID
         self.submission = {} # key-value pairs are ID-Space. 
@@ -80,9 +81,9 @@ class Game():
             if level == 5:
                 l = 7
                 w = 7
-                arrow_count = 5
-                star_count = 5
-                removed_arrows = 5
+                arrow_count = 6
+                star_count = 6
+                removed_arrows = 6
 
         self.grid = Grid()
         self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
@@ -187,12 +188,23 @@ class Game():
                 draw.line((200+100*p1[0], 200+100*p1[1], 200+100*p2[0], 200+100*p2[1]), fill=(255,0,0), width=10)
             p = visited_array[len(visited_array)-1]
             draw.line((175+100*p[0], 175+100*p[1], 225+100*p[0], 225+100*p[1]), fill=(255,0,0), width=10)
-            draw.line((225+100*p[0], 175+100*p[1], 175+100*p[0], 225+100*p[1]), fill=(255,0,0), width=10)
-
-
+            draw.line((225+100*p[0], 175+100*p[1], 175+100*p[0], 225+100*p[1]), fill=(255,0,0), width=10)            
 
         im.save('test.png', quality=95)
-        await self.channel.send(file=discord.File("test.png"))
+
+        if laser == 1: 
+            c = 0
+            for i in range(len(visited_array)):
+                if self.grid.tempgrid[visited_array[i][1]][visited_array[i][0]] == "**":
+                    c += 1
+            if c >= 5:
+                # Success
+                self.player.level += 1
+                await self.channel.send("Success! You have advanced to World " + str(self.player.world) + "." + str(self.player.level), file=discord.File("test.png"))
+
+
+        else: 
+            await self.channel.send(file=discord.File("test.png"))
         """
         await self.channel.send(file=discord.File("test.png"))
 
