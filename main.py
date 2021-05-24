@@ -55,8 +55,10 @@ class MyClient(discord.Client):
 			return
 
 		if inp[0] == ".check" or inp[0] == ".c":
-			await players[message.author].game.check()
-			return 
+			if players[message.author].game != -1:
+				await players[message.author].game.check(1)
+				return 
+			await message.channel.send("No current game found.")
 
 		if inp[0] == ".l":
 			players[message.author].level = int(inp[1])

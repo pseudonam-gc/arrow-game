@@ -92,7 +92,7 @@ class Game():
             self.submission[i] = -1
         await self.check()
 
-    async def check(self):
+    async def check(self, laser=0): # laser is boolean
 
         l = self.grid.l 
         w = self.grid.w
@@ -131,6 +131,8 @@ class Game():
                 elif v[0] == "P":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
                     drawPlayer(draw, 200+i*100, 200+j*100, v[1])
+                    player_loc = [i, j]
+                    player_dir = v[1]
                 elif v[0] == "A":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
                     drawArrow(draw, 200+i*100, 200+j*100, v[1])
@@ -159,7 +161,39 @@ class Game():
 
         #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
+
+        # Draw laser
+
+        if laser == 1:
+            # find the initial starting location / direction
+            visited_array = []
+            while 0 <= player_loc[0] <= l-1 and 0 <= player_loc[1] <= w-1:
+                if [player_loc[0], player_loc[1]] not in visited_array:
+                    if self.grid.tempgrid[player_loc[1]][player_loc[0]][0].upper() in ["A", "B"]:
+                        player_dir = self.grid.tempgrid[player_loc[1]][player_loc[0]][1]
+                visited_array.append(player_loc.copy())
+                # move to next location
+                if player_dir == "U":
+                    player_loc[1] -= 1
+                elif player_dir == "D":
+                    player_loc[1] += 1
+                elif player_dir == "R":
+                    player_loc[0] += 1
+                elif player_dir == "L":
+                    player_loc[0] -= 1
+            for i in range(len(visited_array)-1):
+                p1 = visited_array[i]
+                p2 = visited_array[i+1]
+                draw.line((200+100*p1[0], 200+100*p1[1], 200+100*p2[0], 200+100*p2[1]), fill=(255,0,0), width=10)
+            p = visited_array[len(visited_array)-1]
+            draw.line((175+100*p[0], 175+100*p[1], 225+100*p[0], 225+100*p[1]), fill=(255,0,0), width=10)
+            draw.line((225+100*p[0], 175+100*p[1], 175+100*p[0], 225+100*p[1]), fill=(255,0,0), width=10)
+
+
+
         im.save('test.png', quality=95)
+        await self.channel.send(file=discord.File("test.png"))
+        """
         await self.channel.send(file=discord.File("test.png"))
 
         for i in range(l):
@@ -178,10 +212,11 @@ class Game():
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
                     paint_color = (255, 255, 255)
 
+
         #draw.rectangle((100, 100, 200, 200), fill=(0, 255, 0))
         #draw.ellipse((250, 300, 450, 400), fill=(0, 0, 255))
         im.save('SPOILER_test.png', quality=95)
-        await self.channel.send(file=discord.File("SPOILER_test.png"))
+        await self.channel.send(file=discord.File("SPOILER_test.png"))"""
 
     async def place(self, piece_id, space):
         # TODO: Ensure id is an integer
