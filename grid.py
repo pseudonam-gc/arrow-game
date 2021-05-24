@@ -226,8 +226,8 @@ class Grid():
             decoy_star_spaces = []
             for i in range(len(space_list)):
                     # Find empty space not in 
-                    if space_list[j] not in star_spaces and space_list[j].value == "00":
-                        decoy_star_spaces.append(space_list[j])
+                if space_list[i] not in star_spaces and space_list[i].value == "00":
+                    decoy_star_spaces.append(space_list[i])
             if len(decoy_star_spaces) >= star_count-5:           
                 for i in range(star_count-5):
                     ind = random.randint(0, len(decoy_star_spaces)-1)

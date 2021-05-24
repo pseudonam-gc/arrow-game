@@ -84,6 +84,18 @@ class Game():
                 arrow_count = 6
                 star_count = 6
                 removed_arrows = 6
+            if level == 6:
+                l = 7
+                w = 7
+                arrow_count = 12
+                star_count = 7
+                removed_arrows = 4
+            if level == 7:
+                l = 8
+                w = 8
+                arrow_count = 20
+                star_count = 7
+                removed_arrows = 4
 
         self.grid = Grid()
         self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
