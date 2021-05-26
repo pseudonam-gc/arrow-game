@@ -6,6 +6,7 @@ class Space():
     def __init__(self, x, y, value):
         self.x = x
         self.y = y
+        self.level = -1
         self.value = value
         self.star_value = 0
     def add_star_value(self, x):
@@ -32,6 +33,7 @@ class Grid():
         print ("")
 
     def generateGrid(self, level, l, w, arrow_count, star_count, unnec_arrows, walls): # g is the grid being filled
+        self.level = level
         self.l = l 
         self.w = w
         self.grid = []
@@ -196,8 +198,6 @@ class Grid():
         # Clear duplicates
         star_spaces = list(set(star_spaces))
 
-        # TODO: ENSURE LEN(STAR_SPACES) >= 5 OR RESTART THE WHOLE PROCESS
-        # TODO: FAKE STARS
         if len(star_spaces) >= 5:
             for i in range(5):
                 min_star_count = star_spaces[0].star_value
@@ -237,10 +237,10 @@ class Grid():
 
 
             else:
-                self.generateGrid(l, w, arrow_count, star_count, unnec_arrows) 
+                self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls) 
                 return
         else:
-            self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+            self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls)
             return
         
         # DECOY ARROWS
@@ -268,6 +268,7 @@ class Grid():
     def generateTempGrid(self, removed_arrows):
         arrow_spaces = []
         self.tempgrid = []
+
         for i in range(len(self.grid)):
             self.tempgrid.append([])
             for j in range(len(self.grid[i])):
@@ -275,6 +276,15 @@ class Grid():
                 if self.tempgrid[i][j][0] == "A":
                     arrow_spaces.append((i, j))
         # TODO: ENSURE LEN() >= REMOVED_ARROWS OR RESTART THE WHOLE PROCESS        
+
+        if self.level == 9:
+            for i in range(len(arrow_spaces)):
+                sy = arrow_spaces[i][0]
+                sx = arrow_spaces[i][1]
+                if self.tempgrid[sy][sx] in ["AU", "AD"]:
+                    self.inventory.append(self.tempgrid[sy][sx][0].lower()+self.tempgrid[sy][sx][1])
+                    self.tempgrid[sy][sx] = "00"
+            return
 
         for i in range(removed_arrows):
             s = random.randint(0, len(arrow_spaces)-1)

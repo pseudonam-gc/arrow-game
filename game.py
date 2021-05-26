@@ -102,13 +102,20 @@ class Game():
                 unnec_arrows = 3
                 walls = 7
                 removed_arrows = 2
-            if level > 7:
-                l = 10
-                w = 10
-                arrow_count = 30
-                star_count = 5
-                unnec_arrows = 10
-                removed_arrows = 1
+            if level == 8:
+                l = 7
+                w = 7
+                arrow_count = 10
+                star_count = 6
+                walls = 21
+                unnec_arrows = 2
+                removed_arrows = 3
+            if level == 9:
+                l = 7
+                w = 7
+                arrow_count = 12
+                star_count = 6
+                removed_arrows = -1
         self.grid = Grid()
         self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls)
 
@@ -166,9 +173,9 @@ class Game():
                 elif v[0] == "*":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
                 elif v[0] == "X":
-                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
-                    draw.line((165+i*100, 165+j*100, 235+i*100, 235+j*100), fill=(0, 0, 0), width=6)
-                    draw.line((235+i*100, 165+j*100, 165+i*100, 235+j*100), fill=(0, 0, 0), width=6)
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(100, 100, 100))
+                    draw.line((165+i*100, 165+j*100, 235+i*100, 235+j*100), fill=(255, 255, 255), width=6)
+                    draw.line((235+i*100, 165+j*100, 165+i*100, 235+j*100), fill=(255, 255, 255), width=6)
 
         # Draw inventory lines
         for i in range(len(self.grid.inventory)+1):
