@@ -87,16 +87,24 @@ class Game():
             if level == 6:
                 l = 7
                 w = 7
-                arrow_count = 12
+                arrow_count = 9
                 star_count = 7
+                unnec_arrows = 3
                 removed_arrows = 4
             if level == 7:
                 l = 8
                 w = 8
-                arrow_count = 20
+                arrow_count = 10
                 star_count = 7
+                unnec_arrows = 5
                 removed_arrows = 4
-
+            if level > 7:
+                l = 10
+                w = 10
+                arrow_count = 30
+                star_count = 5
+                unnec_arrows = 10
+                removed_arrows = 1
         self.grid = Grid()
         self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
 
@@ -106,7 +114,6 @@ class Game():
         await self.check()
 
     async def check(self, laser=0): # laser is boolean
-
         l = self.grid.l 
         w = self.grid.w
 
@@ -213,6 +220,8 @@ class Game():
                 # Success
                 self.player.level += 1
                 await self.channel.send("Success! You have advanced to World " + str(self.player.world) + "." + str(self.player.level), file=discord.File("test.png"))
+            else:
+                await self.channel.send(file=discord.File("test.png"))
 
 
         else: 
@@ -251,10 +260,10 @@ class Game():
             xind = ord(space[0].upper())-64-1
             yind = int(space[1])-1
             # self.submission is 0-indexed
-            if self.submission[piece_id-1] != -1:
-                n = self.submission[piece_id-1]
-                self.grid.tempgrid[n[1]][n[0]] = "00"
             if self.grid.tempgrid[yind][xind] == "00":
+                if self.submission[piece_id-1] != -1:
+                    n = self.submission[piece_id-1]
+                    self.grid.tempgrid[n[1]][n[0]] = "00"
                 space_value = self.grid.inventory[piece_id-1]
                 self.grid.tempgrid[yind][xind] = space_value
                 self.submission[piece_id-1] = (xind, yind)
