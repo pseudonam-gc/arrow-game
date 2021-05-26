@@ -236,9 +236,11 @@ class Grid():
 
 
             else:
-                self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)    
+                self.generateGrid(l, w, arrow_count, star_count, unnec_arrows) 
+                return
         else:
             self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+            return
         
         # TODO: DECOY ARROWS?
         for i in range(unnec_arrows):
