@@ -19,6 +19,7 @@ class Grid():
     # P = Player
     # A = Arrow
     # B = Bold Arrow
+    # XX = Wall
     # * = Star (appears twice)
 
     def __init__(self):
@@ -30,7 +31,7 @@ class Grid():
             print (" ".join([y.value for y in [x for x in i]]))
         print ("")
 
-    def generateGrid(self, l, w, arrow_count, star_count, unnec_arrows): # g is the grid being filled
+    def generateGrid(self, l, w, arrow_count, star_count, unnec_arrows, walls): # g is the grid being filled
         self.l = l 
         self.w = w
         self.grid = []
@@ -242,13 +243,26 @@ class Grid():
             self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
             return
         
-        # TODO: DECOY ARROWS?
+        # DECOY ARROWS
         for i in range(unnec_arrows):
+            if len(self.open_squares) == 0:
+                break
             s = random.randint(0, len(self.open_squares)-1)
             d = ["R", "U", "D", "L"]
             sx = self.open_squares[s].x
             sy = self.open_squares[s].y
             self.grid[sy][sx].value = "A"+d[random.randint(0, 3)]
+            self.open_squares.pop(s)
+
+        # WALLS
+        for i in range(walls):
+            if len(self.open_squares) == 0:
+                break
+            s = random.randint(0, len(self.open_squares)-1)
+            sx = self.open_squares[s].x
+            sy = self.open_squares[s].y
+            self.grid[sy][sx].value = "XX"
+            self.open_squares.pop(s)
         
 
     def generateTempGrid(self, removed_arrows):

@@ -52,6 +52,7 @@ class Game():
         star_count = 7
         unnec_arrows = 0
         removed_arrows = 0  
+        walls = 0
         if world == 1:
             if level == 1:
                 l = 5
@@ -87,10 +88,11 @@ class Game():
             if level == 6:
                 l = 7
                 w = 7
-                arrow_count = 9
+                arrow_count = 8
                 star_count = 7
                 unnec_arrows = 3
-                removed_arrows = 4
+                walls = 3
+                removed_arrows = 3
             if level == 7:
                 l = 8
                 w = 8
@@ -106,7 +108,7 @@ class Game():
                 unnec_arrows = 10
                 removed_arrows = 1
         self.grid = Grid()
-        self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+        self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows, walls)
 
         self.grid.generateTempGrid(removed_arrows)
         for i in range(len(self.grid.inventory)):
@@ -161,6 +163,10 @@ class Game():
                     drawArrow(draw, 200+i*100, 200+j*100, v[1])
                 elif v[0] == "*":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(255, 255, 0))
+                elif v[0] == "X":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    draw.line((165+i*100, 165+j*100, 235+i*100, 235+j*100), fill=(0, 0, 0), width=6)
+                    draw.line((235+i*100, 165+j*100, 165+i*100, 235+j*100), fill=(0, 0, 0), width=6)
 
         # Draw inventory lines
         for i in range(len(self.grid.inventory)+1):
@@ -186,8 +192,11 @@ class Game():
 
         if laser == 1:
             # find the initial starting location / direction
+            leave = 0
             visited_array = []
             while 0 <= player_loc[0] <= l-1 and 0 <= player_loc[1] <= w-1:
+                if self.grid.grid[player_loc[1]][player_loc[0]].value[0] == "X":
+                    leave = 1
                 if [player_loc[0], player_loc[1]] not in visited_array:
                     if self.grid.tempgrid[player_loc[1]][player_loc[0]][0].upper() in ["A", "B"]:
                         player_dir = self.grid.tempgrid[player_loc[1]][player_loc[0]][1]
@@ -201,6 +210,8 @@ class Game():
                     player_loc[0] += 1
                 elif player_dir == "L":
                     player_loc[0] -= 1
+                if leave == 1:
+                    break
             for i in range(len(visited_array)-1):
                 p1 = visited_array[i]
                 p2 = visited_array[i+1]
