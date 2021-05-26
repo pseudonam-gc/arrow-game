@@ -31,7 +31,7 @@ class Grid():
             print (" ".join([y.value for y in [x for x in i]]))
         print ("")
 
-    def generateGrid(self, l, w, arrow_count, star_count, unnec_arrows, walls): # g is the grid being filled
+    def generateGrid(self, level, l, w, arrow_count, star_count, unnec_arrows, walls): # g is the grid being filled
         self.l = l 
         self.w = w
         self.grid = []

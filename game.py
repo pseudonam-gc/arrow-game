@@ -77,6 +77,7 @@ class Game():
                 l = 7
                 w = 7
                 arrow_count = 6
+                unnec_arrows = 1
                 star_count = 5
                 removed_arrows = 3
             if level == 5:
@@ -88,18 +89,19 @@ class Game():
             if level == 6:
                 l = 7
                 w = 7
-                arrow_count = 8
-                star_count = 7
+                arrow_count = 5
+                star_count = 6
                 unnec_arrows = 3
                 walls = 3
-                removed_arrows = 3
+                removed_arrows = 2
             if level == 7:
-                l = 8
-                w = 8
-                arrow_count = 10
-                star_count = 7
-                unnec_arrows = 5
-                removed_arrows = 4
+                l = 7
+                w = 7
+                arrow_count = 7
+                star_count = 6
+                unnec_arrows = 3
+                walls = 7
+                removed_arrows = 2
             if level > 7:
                 l = 10
                 w = 10
@@ -108,7 +110,7 @@ class Game():
                 unnec_arrows = 10
                 removed_arrows = 1
         self.grid = Grid()
-        self.grid.generateGrid(l, w, arrow_count, star_count, unnec_arrows, walls)
+        self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls)
 
         self.grid.generateTempGrid(removed_arrows)
         for i in range(len(self.grid.inventory)):
