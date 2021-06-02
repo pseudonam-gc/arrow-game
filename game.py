@@ -31,6 +31,27 @@ def drawArrow(draw, x, y, dir, size=1): # x and y are centered spaces
 		draw.line((x-10*size, y-15*size, x-30*size, y), fill=(0, 0, 0), width=4)
 		draw.line((x-10*size, y+15*size, x-30*size, y), fill=(0, 0, 0), width=4)
 
+def drawTilt(draw, x, y, dir):
+    if dir == "C":
+        draw.arc((x-35, y-35, x+35, y+35), -110, 0, fill=(0, 0, 255), width=8)
+        draw.arc((x-35, y-35, x+35, y+35), -290, -180, fill=(0, 0, 255), width=8)
+    elif dir == "A":
+        draw.arc((x-35, y-35, x+35, y+35), 180, 290, fill=(255, 165, 0), width=8)
+        draw.arc((x-35, y-35, x+35, y+35), 0, 110, fill=(255, 165, 0), width=8)
+    draw.ellipse((x-28, y-28, x+28, y+28), fill=(200,200,200))
+    if dir == "C":
+        draw.line((x+15, y+30, x-15, y+45), fill=(0, 0, 255), width=4)
+        draw.line((x+15, y+30, x-15, y+5), fill=(0, 0, 255), width=4)
+
+        draw.line((x-15, y-30, x+15, y-45), fill=(0, 0, 255), width=4)
+        draw.line((x-15, y-30, x+15, y-5), fill=(0, 0, 255), width=4)
+    elif dir == "A":
+        draw.line((x-15, y+30, x+15, y+45), fill=(255, 165, 0), width=4)
+        draw.line((x-15, y+30, x+15, y+5), fill=(255, 165, 0), width=4)
+
+        draw.line((x+15, y-30, x-15, y-45), fill=(255, 165, 0), width=4)
+        draw.line((x+15, y-30, x-15, y-5), fill=(255, 165, 0), width=4)
+
 class Game():
     def __init__(self, channel, player, dID):
         # create grid
@@ -52,6 +73,7 @@ class Game():
         star_count = 7
         unnec_arrows = 0
         removed_arrows = 0  
+        tilts = 0
         walls = 0
         if world == 1:
             if level == 1:
@@ -116,8 +138,15 @@ class Game():
                 arrow_count = 12
                 star_count = 6
                 removed_arrows = -1
+            if level == 10:
+                l = 7
+                w = 7
+                arrow_count = 7
+                tilts = 2
+                star_count = 6
+                removed_arrows = 0
         self.grid = Grid()
-        self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls)
+        self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
 
         self.grid.generateTempGrid(removed_arrows)
         for i in range(len(self.grid.inventory)):
@@ -125,6 +154,7 @@ class Game():
         await self.check()
 
     async def check(self, laser=0): # laser is boolean
+        self.grid.printGrid()
         l = self.grid.l 
         w = self.grid.w
 
@@ -176,6 +206,9 @@ class Game():
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(100, 100, 100))
                     draw.line((165+i*100, 165+j*100, 235+i*100, 235+j*100), fill=(255, 255, 255), width=6)
                     draw.line((235+i*100, 165+j*100, 165+i*100, 235+j*100), fill=(255, 255, 255), width=6)
+                elif v[0] == "T":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    drawTilt(draw, 200+i*100, 200+j*100, v[1])
 
         # Draw inventory lines
         for i in range(len(self.grid.inventory)+1):

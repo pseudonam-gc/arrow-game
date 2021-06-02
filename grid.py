@@ -32,7 +32,7 @@ class Grid():
             print (" ".join([y.value for y in [x for x in i]]))
         print ("")
 
-    def generateGrid(self, level, l, w, arrow_count, star_count, unnec_arrows, walls): # g is the grid being filled
+    def generateGrid(self, level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts): # g is the grid being filled
         self.level = level
         self.l = l 
         self.w = w
@@ -56,7 +56,32 @@ class Grid():
         candidate_spaces = []
         star_spaces = []
         t = 0 
+        prev_dir = ""
         prev_movement = -1 # -1 = n/a, 0 = hor, 1 = ver
+
+
+        # TILTS
+        tilt_list = []
+        for i in range(arrow_count):
+            tilt_list.append(0)
+        for i in range(tilts):  
+            s = random.randint(0, len(tilt_list)-1)
+            while tilt_list[s] != 0:
+                s = random.randint(0, len(tilt_list)-1)
+            tilt_list[s] = 1
+
+        """
+        arrow_spaces = []
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[i])):
+                if self.grid[i][j].value == "A":
+                    arrow_spaces.append((i, j))
+        for i in range(tilts):
+            s = random.randint(0, len(arrow_spaces)-1)
+            sx = arrow_spaces[s].x
+            sy = arrow_spaces[s].y
+            self.grid[sy][sx].value = "T"
+            """
 
         while t < arrow_count:
 
@@ -123,23 +148,63 @@ class Grid():
 
             # Arrows, folks!
             if t != 0:
-                if prev_x < space.x:
-                    self.grid[prev_y][prev_x].value = "AR"
-                elif prev_x > space.x:
-                    self.grid[prev_y][prev_x].value = "AL"
-                elif prev_y < space.y:
-                    self.grid[prev_y][prev_x].value = "AD"
+                if tilt_list[t] == 0:
+                    if prev_x < space.x:
+                        self.grid[prev_y][prev_x].value = "AR"
+                        prev_dir = "R"
+                    elif prev_x > space.x:
+                        self.grid[prev_y][prev_x].value = "AL"
+                        prev_dir = "L"
+                    elif prev_y < space.y:
+                        self.grid[prev_y][prev_x].value = "AD"
+                        prev_dir = "D"
+                    else:
+                        self.grid[prev_y][prev_x].value = "AU"
+                        prev_dir = "U"
                 else:
-                    self.grid[prev_y][prev_x].value = "AU"
+                    if prev_x < space.x:
+                        if prev_dir == "U":
+                            self.grid[prev_y][prev_x].value = 'TC'
+                        elif prev_dir == "D":
+                            self.grid[prev_y][prev_x].value = 'TA'
+                        else:
+                            self.grid[prev_y][prev_x].value = "AR"
+
+                    elif prev_x > space.x:
+                        if prev_dir == "U":
+                            self.grid[prev_y][prev_x].value = 'TA'
+                        elif prev_dir == "D":
+                            self.grid[prev_y][prev_x].value = 'TC'
+                        else:
+                            self.grid[prev_y][prev_x].value = "AL"
+                    elif prev_y < space.y:
+                        if prev_dir == "L":
+                            self.grid[prev_y][prev_x].value = 'TA'
+                        elif prev_dir == "R":
+                            self.grid[prev_y][prev_x].value = 'TC'
+                        else:
+                            self.grid[prev_y][prev_x].value = "AD"
+                    else:
+                        if prev_dir == "L":
+                            self.grid[prev_y][prev_x].value = 'TC'
+                        elif prev_dir == "R":
+                            self.grid[prev_y][prev_x].value = 'TA'
+                        else:
+                            self.grid[prev_y][prev_x].value = "AU"
+                    # TODO: Copy this over to the final arrow placement
             else:
                 if prev_x < space.x:
                     self.grid[prev_y][prev_x].value = "PR"
+                    prev_dir = "R"
                 elif prev_x > space.x:
                     self.grid[prev_y][prev_x].value = "PL"
+                    prev_dir = "L"
                 elif prev_y < space.y:
                     self.grid[prev_y][prev_x].value = "PD"
+                    prev_dir = "D"
                 else:
                     self.grid[prev_y][prev_x].value = "PU"
+                    prev_dir = "U"
 
             # Sets previous space to current space
 
@@ -237,12 +302,12 @@ class Grid():
 
 
             else:
-                self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls) 
+                self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts) 
                 return
         else:
-            self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls)
+            self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
             return
-        
+
         # DECOY ARROWS
         for i in range(unnec_arrows):
             if len(self.open_squares) == 0:
