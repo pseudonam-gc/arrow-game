@@ -47,7 +47,9 @@ class MyClient(discord.Client):
 			return
 
 		if inp[0] == ".place" or inp[0] == ".p":
-			await players[message.author].game.place(int(inp[1]), inp[2])
+			for i in range(1, len(inp)):
+				if inp[i][1] == "-":
+					await players[message.author].game.place(int(inp[i][0]), inp[i][2:])
 			return
 
 		if inp[0] == ".remove" or inp[0] == ".r":

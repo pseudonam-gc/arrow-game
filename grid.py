@@ -232,7 +232,7 @@ class Grid():
                     if i.x == prev_x:
                         candidate_spaces.append(i)
         if len(candidate_spaces) == 0:
-            self.generateGrid(l, w, arrow_count, star_count, unnec_arrows)
+            self.generateGrid(l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
             return
         seed = random.randint(0, len(candidate_spaces)-1)
         space = candidate_spaces[seed]
@@ -355,6 +355,7 @@ class Grid():
             s = random.randint(0, len(arrow_spaces)-1)
             sy = arrow_spaces[s][0]
             sx = arrow_spaces[s][1]
+            print (i, sx, sy)
             self.inventory.append(self.tempgrid[sy][sx][0].lower()+self.tempgrid[sy][sx][1])
             self.tempgrid[sy][sx] = "00"
             arrow_spaces.pop(s)

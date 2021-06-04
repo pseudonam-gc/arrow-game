@@ -33,6 +33,11 @@ def drawArrow(draw, x, y, dir, size=1): # x and y are centered spaces
 
 def drawTilt(draw, x, y, dir):
     if dir == "C":
+        dir = "A"
+    else:
+        dir = "C"
+    # LOL
+    if dir == "C":
         draw.arc((x-35, y-35, x+35, y+35), -110, 0, fill=(0, 0, 255), width=8)
         draw.arc((x-35, y-35, x+35, y+35), -290, -180, fill=(0, 0, 255), width=8)
     elif dir == "A":
@@ -141,10 +146,37 @@ class Game():
             if level == 10:
                 l = 7
                 w = 7
-                arrow_count = 7
+                arrow_count = 5
                 tilts = 2
+                star_count = 5
+                removed_arrows = 2
+            if level == 11:
+                l = 7
+                w = 7
+                arrow_count = 8
+                tilts = 4
+                walls = 3
+                unnec_arrows = 3
                 star_count = 6
+                removed_arrows = 2
+            if level == 12:
+                l = 7
+                w = 7
+                arrow_count = 10
+                removed_arrows = 2
+                tilts = 7
+                walls = 5
+                star_count = 5
+            if level == 13:
+                l = 7
+                w = 7
+                arrow_count = 16
+                tilts = 7
+                walls = 7
+                unnec_arrows = 5
+                star_count = 5
                 removed_arrows = 0
+        # NOTE: ARROWS must be greater than or equal to tilts, removed_arrows
         self.grid = Grid()
         self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
 
@@ -154,7 +186,6 @@ class Game():
         await self.check()
 
     async def check(self, laser=0): # laser is boolean
-        self.grid.printGrid()
         l = self.grid.l 
         w = self.grid.w
 
@@ -242,6 +273,26 @@ class Game():
                 if [player_loc[0], player_loc[1]] not in visited_array:
                     if self.grid.tempgrid[player_loc[1]][player_loc[0]][0].upper() in ["A", "B"]:
                         player_dir = self.grid.tempgrid[player_loc[1]][player_loc[0]][1]
+                    if self.grid.tempgrid[player_loc[1]][player_loc[0]].upper() == "TC":
+                        # CLOCKWISE TURN
+                        if player_dir == "U":
+                            player_dir = "R"
+                        elif player_dir == "R":
+                            player_dir = "D"
+                        elif player_dir == "D":
+                            player_dir = "L"
+                        elif player_dir == "L":
+                            player_dir = "U"
+                    if self.grid.tempgrid[player_loc[1]][player_loc[0]].upper() == "TA":
+                        # CLOCKWISE TURN
+                        if player_dir == "U":
+                            player_dir = "L"
+                        elif player_dir == "L":
+                            player_dir = "D"
+                        elif player_dir == "D":
+                            player_dir = "R"
+                        elif player_dir == "R":
+                            player_dir = "U"
                 visited_array.append(player_loc.copy())
                 # move to next location
                 if player_dir == "U":
