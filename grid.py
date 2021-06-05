@@ -37,6 +37,10 @@ class Grid():
         self.l = l 
         self.w = w
         self.grid = []
+
+        if level in [3, 7, 9, 12, 13]:
+            self.perp = 0
+
         for i in range(w):
             self.grid.append([])
             for j in range(l):
@@ -243,21 +247,25 @@ class Grid():
             for i in space_list:
                 if i.x > space.x and i.y == space.y:
                     star_spaces.append(i)
+                space_list.remove(i)
         elif prev_x > space.x:
             self.grid[prev_y][prev_x].value = "AL"
             for i in space_list:
                 if i.x < space.x and i.y == space.y:
                     star_spaces.append(i)
+                space_list.remove(i)
         elif prev_y < space.y:
             self.grid[prev_y][prev_x].value = "AD"
             for i in space_list:
                 if i.y > space.y and i.x == space.x:
                     star_spaces.append(i)
+                space_list.remove(i)
         else:
             self.grid[prev_y][prev_x].value = "AU"
             for i in space_list:
                 if i.y < space.y and i.x == space.x:
                     star_spaces.append(i)
+                space_list.remove(i)
         self.open_squares = space_list
 
         # Clear duplicates
@@ -355,7 +363,6 @@ class Grid():
             s = random.randint(0, len(arrow_spaces)-1)
             sy = arrow_spaces[s][0]
             sx = arrow_spaces[s][1]
-            print (i, sx, sy)
             self.inventory.append(self.tempgrid[sy][sx][0].lower()+self.tempgrid[sy][sx][1])
             self.tempgrid[sy][sx] = "00"
             arrow_spaces.pop(s)

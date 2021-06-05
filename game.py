@@ -176,6 +176,13 @@ class Game():
                 unnec_arrows = 5
                 star_count = 5
                 removed_arrows = 0
+            if level == 999:
+                l = 7
+                w = 7
+                arrow_count = 5
+                walls = 20
+                star_count = 5
+                removed_arrows = 0
         # NOTE: ARROWS must be greater than or equal to tilts, removed_arrows
         self.grid = Grid()
         self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts)

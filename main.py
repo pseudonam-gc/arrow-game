@@ -1,3 +1,4 @@
+from os import environ
 import discord
 from PIL import Image, ImageDraw, ImageFont
 from grid import Space
@@ -48,7 +49,7 @@ class MyClient(discord.Client):
 
 		if inp[0] == ".place" or inp[0] == ".p":
 			for i in range(1, len(inp)):
-				if inp[i][1] == "-":
+				if len(inp[i]) > 2 and inp[i][1] == "-":
 					await players[message.author].game.place(int(inp[i][0]), inp[i][2:])
 			return
 
@@ -71,6 +72,6 @@ class MyClient(discord.Client):
 
 
 client = MyClient()
-client.run('ODEyNDQ4OTk2NzE4MDE4NTYw.YDA6Fw.LAws-I70C_7i9cP8EzQVNW_dmKg')
+client.run(environ["BOT_TOKEN"])
 	
 
