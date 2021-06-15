@@ -12,7 +12,7 @@ import math
 def drawPlayer(draw, x, y, dir):
 	draw.ellipse((x-40, y-40, x+40, y+40), fill=(0, 255, 0))
 	drawArrow(draw, x, y, dir, size=0.7)
-		
+
 def drawArrow(draw, x, y, dir, size=1): # x and y are centered spaces
 	if dir == "U":
 		draw.line((x, y+30*size, x, y-30*size), fill=(0, 0, 0), width=5)
@@ -78,41 +78,48 @@ class Game():
         star_count = 7
         unnec_arrows = 0
         removed_arrows = 0  
-        tilts = 0
         walls = 0
+        second_walls = 0
+        tilts = 0
         if world == 1:
+            # Opening level - introduce the players to the arrow placing mechanic
             if level == 1:
                 l = 5
                 w = 5
                 arrow_count = 2
                 star_count = 5
                 removed_arrows = 2
+            # Introduce players to pre-placed grid, also nontrivial
             if level == 2:
                 l = 6
                 w = 6
                 arrow_count = 4
                 star_count = 5
                 removed_arrows = 2
+            # Show that every arrow doesn't have to be touched. Also back arrows
             if level == 3:
                 l = 7
                 w = 7
                 arrow_count = 5
                 star_count = 5
-                unnec_arrows = 1
+                unnec_arrows = 2
                 removed_arrows = 1
+            # Enough introductions, raise the difficulty a bit
             if level == 4:
                 l = 7
                 w = 7
-                arrow_count = 6
-                unnec_arrows = 1
+                arrow_count = 7
+                unnec_arrows = 2
                 star_count = 5
                 removed_arrows = 3
+            # Players can place wherever they want. Gimmick level
             if level == 5:
                 l = 7
                 w = 7
                 arrow_count = 6
                 star_count = 6
                 removed_arrows = 6
+            # Introduces walls. Still nontrivial
             if level == 6:
                 l = 7
                 w = 7
@@ -121,6 +128,7 @@ class Game():
                 unnec_arrows = 3
                 walls = 3
                 removed_arrows = 2
+            # Reinforces back arrows, also quite hard 
             if level == 7:
                 l = 7
                 w = 7
@@ -129,6 +137,7 @@ class Game():
                 unnec_arrows = 3
                 walls = 7
                 removed_arrows = 2
+            # Wall spam, just for the heck of it. Lots of arrows but quite ez
             if level == 8:
                 l = 7
                 w = 7
@@ -137,12 +146,14 @@ class Game():
                 walls = 21
                 unnec_arrows = 2
                 removed_arrows = 3
+            # Gimmick level! All the horizontal arrows are placed, verticals aren't.
             if level == 9:
                 l = 7
                 w = 7
                 arrow_count = 12
                 star_count = 6
                 removed_arrows = -1
+            # Introduces tilts 
             if level == 10:
                 l = 7
                 w = 7
@@ -150,6 +161,7 @@ class Game():
                 tilts = 2
                 star_count = 5
                 removed_arrows = 2
+            # Somewhat difficult tilt level
             if level == 11:
                 l = 7
                 w = 7
@@ -159,33 +171,26 @@ class Game():
                 unnec_arrows = 3
                 star_count = 6
                 removed_arrows = 2
+            # Very difficult tilt level, back arrows too
             if level == 12:
                 l = 7
                 w = 7
                 arrow_count = 10
-                removed_arrows = 2
                 tilts = 7
                 walls = 5
                 star_count = 5
+                removed_arrows = 2
+            # Introduce second walls. Back arrows, for obvious reasons. 
             if level == 13:
                 l = 7
                 w = 7
-                arrow_count = 16
-                tilts = 7
-                walls = 7
-                unnec_arrows = 5
+                arrow_count = 6
                 star_count = 5
-                removed_arrows = 0
-            if level == 999:
-                l = 7
-                w = 7
-                arrow_count = 5
-                walls = 20
-                star_count = 5
-                removed_arrows = 0
+                removed_arrows = 4
+                second_walls = 10
         # NOTE: ARROWS must be greater than or equal to tilts, removed_arrows
         self.grid = Grid()
-        self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
+        self.grid.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, second_walls, tilts)
 
         self.grid.generateTempGrid(removed_arrows)
         for i in range(len(self.grid.inventory)):
@@ -244,6 +249,10 @@ class Game():
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(100, 100, 100))
                     draw.line((165+i*100, 165+j*100, 235+i*100, 235+j*100), fill=(255, 255, 255), width=6)
                     draw.line((235+i*100, 165+j*100, 165+i*100, 235+j*100), fill=(255, 255, 255), width=6)
+                elif v[0] == "Y":
+                    draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
+                    draw.line((165+i*100, 165+j*100, 235+i*100, 235+j*100), fill=(255, 255, 255), width=6)
+                    draw.line((235+i*100, 165+j*100, 165+i*100, 235+j*100), fill=(255, 255, 255), width=6)
                 elif v[0] == "T":
                     draw.rectangle((154+i*100, 154+j*100, 246+i*100, 246+j*100), fill=(200, 200, 200))
                     drawTilt(draw, 200+i*100, 200+j*100, v[1])
@@ -274,9 +283,15 @@ class Game():
             # find the initial starting location / direction
             leave = 0
             visited_array = []
+            second_wall_array = []
             while 0 <= player_loc[0] <= l-1 and 0 <= player_loc[1] <= w-1:
                 if self.grid.grid[player_loc[1]][player_loc[0]].value[0] == "X":
                     leave = 1
+                if self.grid.grid[player_loc[1]][player_loc[0]].value[0] == "Y":
+                    if [player_loc[0], player_loc[1]] in second_wall_array:
+                        leave = 1
+                    else:
+                        second_wall_array.append([player_loc[0], player_loc[1]])
                 if [player_loc[0], player_loc[1]] not in visited_array:
                     if self.grid.tempgrid[player_loc[1]][player_loc[0]][0].upper() in ["A", "B"]:
                         player_dir = self.grid.tempgrid[player_loc[1]][player_loc[0]][1]
@@ -324,9 +339,12 @@ class Game():
 
         if laser == 1: 
             c = 0
+            star_space_array = [] # ensures the same star doesn't count twice
             for i in range(len(visited_array)):
-                if self.grid.tempgrid[visited_array[i][1]][visited_array[i][0]] == "**":
-                    c += 1
+                if [[visited_array[i][0]], [visited_array[i][1]]] not in star_space_array:
+                    if self.grid.tempgrid[visited_array[i][1]][visited_array[i][0]] == "**":
+                        c += 1
+                        star_space_array.append([[visited_array[i][0]], [visited_array[i][1]]])
             if c >= 5:
                 # Success
                 self.player.level += 1

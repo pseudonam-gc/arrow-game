@@ -2,6 +2,13 @@ from operator import xor
 import random
 import copy
 
+def between(b1, b2, mid): # bound 1, bound 2, mid
+    if b1 <= mid <= b2 or b1 >= mid >= b2:
+        return True 
+    else:
+        return False
+
+
 class Space():
     def __init__(self, x, y, value):
         self.x = x
@@ -16,11 +23,13 @@ class Grid():
     # 7x7 grid
     # Items are strings in the list identified with a character and a direction (UDLR). 
     # Capital = preplaced. Lowercase = player-placed
-    # 0 = Uninitialized 
+    # 0 = Nothing 
     # P = Player
     # A = Arrow
     # B = Bold Arrow
+    # T = Tilt
     # XX = Wall
+    # YY = Second Time Wall
     # * = Star (appears twice)
 
     def __init__(self):
@@ -32,7 +41,7 @@ class Grid():
             print (" ".join([y.value for y in [x for x in i]]))
         print ("")
 
-    def generateGrid(self, level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts): # g is the grid being filled
+    def generateGrid(self, level, l, w, arrow_count, star_count, unnec_arrows, walls, second_walls, tilts): # g is the grid being filled
         self.level = level
         self.l = l 
         self.w = w
@@ -87,6 +96,16 @@ class Grid():
             self.grid[sy][sx].value = "T"
             """
 
+        # This is for determining the number of times each square was visited.
+
+        self.visited_grid = []
+        for i in range(w):
+            self.visited_grid.append([])
+            for j in range(l):
+                self.visited_grid[i].append(0)
+
+        # Arrow placement loop
+
         while t < arrow_count:
 
             # Fills candidate_spaces
@@ -131,24 +150,35 @@ class Grid():
             # Updates direction of previous space
 
             # Clear all spaces in between and start/ending space for obv reasons
-            
+
             k = 0
             if hor == 1:
-                while k < len(space_list):
-                    if (space_list[k].y == space.y) and (space_list[k].x in range(min(space.x, prev_x), max(space.x, prev_x)+1)):
-                        if not ((space_list[k].x == prev_x and space_list[k].y == prev_y) or (space_list[k].x == space.x and space_list[k].y == space.y)):
-                            star_spaces.append(space_list[k])
-                        space_list.pop(k) 
-                    else:
-                        k += 1
+                for i in range(l):
+                    if between(space.x, prev_x, i):
+                        if i != space.x and i != prev_x and self.visited_grid[space.y][i] == 0:
+                            star_spaces.append(self.grid[space.y][i])
+                        # This check might feel too time consuming?
+                        if self.grid[space.y][i] in space_list: 
+                            space_list.remove(self.grid[space.y][i])
+                        self.visited_grid[space.y][i] += 1
             else:
-                while k < len(space_list):
-                    if (space_list[k].x == space.x) and (space_list[k].y in range(min(space.y, prev_y), max(space.y, prev_y)+1)):
-                        if not ((space_list[k].x == prev_x and space_list[k].y == prev_y) or (space_list[k].x == space.x and space_list[k].y == space.y)):
-                            star_spaces.append(space_list[k])
-                        space_list.pop(k) 
-                    else:
-                        k += 1
+                for i in range(w):
+                    if between(space.y, prev_y, i):
+                        if i != space.y and i != prev_y and self.visited_grid[i][space.x] == 0:
+                            star_spaces.append(self.grid[i][space.x])
+                        # This check might feel too time consuming?
+                        if self.grid[i][space.x] in space_list: 
+                            space_list.remove(self.grid[i][space.x])
+                        self.visited_grid[i][space.x] += 1
+
+                
+#            while k < len(space_list):
+#                if (space_list[k].x == space.x) and (space_list[k].y in range(min(space.y, prev_y), max(space.y, prev_y)+1)):
+#                    if not ((space_list[k].x == prev_x and space_list[k].y == prev_y) or (space_list[k].x == space.x and space_list[k].y == space.y)):
+#                        star_spaces.append(space_list[k])
+#                    space_list.pop(k) 
+#                else:
+#                    k += 1
 
             # Arrows, folks!
             if t != 0:
@@ -236,7 +266,7 @@ class Grid():
                     if i.x == prev_x:
                         candidate_spaces.append(i)
         if len(candidate_spaces) == 0:
-            self.generateGrid(l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
+            self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, second_walls, tilts)
             return
         seed = random.randint(0, len(candidate_spaces)-1)
         space = candidate_spaces[seed]
@@ -244,28 +274,40 @@ class Grid():
         if prev_x < space.x:
             self.grid[prev_y][prev_x].value = "AR"
             # append everything to the right of this
-            for i in space_list:
-                if i.x > space.x and i.y == space.y:
-                    star_spaces.append(i)
-                space_list.remove(i)
+            for i in range(l):
+                if i > space.x:
+                    if self.visited_grid[space.y][i] == 0:
+                        star_spaces.append(self.grid[space.y][i])
+                    self.visited_grid[space.y][i] += 1
+                    if self.grid[space.y][i] in space_list:
+                        space_list.remove(self.grid[space.y][i])
         elif prev_x > space.x:
             self.grid[prev_y][prev_x].value = "AL"
-            for i in space_list:
-                if i.x < space.x and i.y == space.y:
-                    star_spaces.append(i)
-                space_list.remove(i)
+            for i in range(l):
+                if i < space.x:
+                    if self.visited_grid[space.y][i] == 0:
+                        star_spaces.append(self.grid[space.y][i])
+                    self.visited_grid[space.y][i] += 1
+                    if self.grid[space.y][i] in space_list:
+                        space_list.remove(self.grid[space.y][i])
         elif prev_y < space.y:
             self.grid[prev_y][prev_x].value = "AD"
-            for i in space_list:
-                if i.y > space.y and i.x == space.x:
-                    star_spaces.append(i)
-                space_list.remove(i)
+            for i in range(w):
+                if i > space.y:
+                    if self.visited_grid[i][space.x] == 0:
+                        star_spaces.append(self.grid[i][space.x])
+                    self.visited_grid[i][space.x] += 1
+                    if self.grid[i][space.x] in space_list:
+                        space_list.remove(self.grid[i][space.x])
         else:
             self.grid[prev_y][prev_x].value = "AU"
-            for i in space_list:
-                if i.y < space.y and i.x == space.x:
-                    star_spaces.append(i)
-                space_list.remove(i)
+            for i in range(w):
+                if i < space.y:
+                    if self.visited_grid[i][space.x] == 0:
+                        star_spaces.append(self.grid[i][space.x])
+                    self.visited_grid[i][space.x] += 1
+                    if self.grid[i][space.x] in space_list:
+                        space_list.remove(self.grid[i][space.x])
         self.open_squares = space_list
 
         # Clear duplicates
@@ -310,10 +352,10 @@ class Grid():
 
 
             else:
-                self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts) 
+                self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, second_walls, tilts) 
                 return
         else:
-            self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, tilts)
+            self.generateGrid(level, l, w, arrow_count, star_count, unnec_arrows, walls, second_walls, tilts)
             return
 
         # DECOY ARROWS
@@ -336,7 +378,22 @@ class Grid():
             sy = self.open_squares[s].y
             self.grid[sy][sx].value = "XX"
             self.open_squares.pop(s)
-        
+
+        self.semi_open_squares = []
+        for i in range(len(self.visited_grid)):
+            for j in range(len(self.visited_grid[i])):
+                if self.visited_grid[i][j] < 2 and self.grid[i][j].value == "00":
+                    self.semi_open_squares.append(self.grid[i][j])
+
+        # SECOND WALLS
+        for i in range(second_walls):
+            if len(self.semi_open_squares) == 0:
+                break 
+            s = random.randint(0, len(self.semi_open_squares)-1)
+            sx = self.semi_open_squares[s].x
+            sy = self.semi_open_squares[s].y 
+            self.grid[sy][sx].value = "YY"
+            self.semi_open_squares.pop(s)
 
     def generateTempGrid(self, removed_arrows):
         arrow_spaces = []
